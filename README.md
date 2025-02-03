@@ -7,4 +7,4 @@ This project fetches news articles, summarizes them using NLP models, and analyz
 - ✅ Fetch news via API
 - ✅ Summarize using Hugging Face `bart-large-cnn`
 - ✅ Analyze sentiment with NLTK
-- ✅ ✅ Simple UI Next.js, React, and ShadCN components
+- ✅ Simple UI Next.js, React, and ShadCN components
