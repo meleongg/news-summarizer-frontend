@@ -6,6 +6,8 @@ This project fetches news articles, summarizes them using NLP models, and analyz
 
 - Fast API Hugging Face Space Demo: https://meleong-news-summarizer.hf.space/docs#/
 
+https://github.com/user-attachments/assets/3f4edf13-e7e9-4f4d-a542-d6efe844cfd6
+
 ## Features
 
 - ✅ Fetch news via API
