@@ -1,5 +1,6 @@
 "use client";
 
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -45,7 +46,7 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/fetch_news/?query=${query}&sort_by=${sortBy}&page_size=${pageSize}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/fetch_news/?query=${query}&sort_by=${sortBy}&page_size=${pageSize}`
       );
       if (!response.ok) throw new Error("Failed to fetch news.");
       const data = await response.json();
@@ -64,7 +65,7 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/analyze/?url=${selectedArticle.url}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/analyze/?url=${selectedArticle.url}`
       );
       if (!response.ok) throw new Error("Failed to analyze article.");
       const data = await response.json();
@@ -78,11 +79,21 @@ export default function Home() {
 
   return (
     <div className="max-w-2xl mx-auto py-10 space-y-6">
+      <Alert>
+        <AlertDescription>
+          <strong>Note:</strong> Article analysis may take up to a minute to
+          process, especially during periods of low activity. Please be patient
+          while we fetch and analyze the latest news.
+        </AlertDescription>
+      </Alert>
       <h1 className="text-2xl font-bold text-center">
         AI News Summarizer & Sentiment Analyzer 📰🤖
       </h1>
 
       {/* Query Input */}
+      <label className="block text-sm font-medium mb-2">
+        Enter a topic or keyword to search news articles
+      </label>
       <Input
         type="text"
         placeholder="Enter a topic or keyword..."
@@ -92,31 +103,41 @@ export default function Home() {
 
       {/* Sorting and Page Size Dropdowns */}
       <div className="flex gap-4">
-        <Select onValueChange={setSortBy} value={sortBy}>
-          <SelectTrigger>
-            <SelectValue placeholder="Sort by" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="relevancy">Relevancy</SelectItem>
-            <SelectItem value="popularity">Popularity</SelectItem>
-            <SelectItem value="publishedAt">Publish Date</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex-1">
+          <label className="block text-sm font-medium mb-2">
+            Sort Results By
+          </label>
+          <Select onValueChange={setSortBy} value={sortBy}>
+            <SelectTrigger>
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="relevancy">Relevancy</SelectItem>
+              <SelectItem value="popularity">Popularity</SelectItem>
+              <SelectItem value="publishedAt">Publish Date</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-        <Select
-          onValueChange={(value) => setPageSize(Number(value))}
-          value={pageSize.toString()}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Articles" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="5">5</SelectItem>
-            <SelectItem value="10">10</SelectItem>
-            <SelectItem value="15">15</SelectItem>
-            <SelectItem value="20">20</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex-1">
+          <label className="block text-sm font-medium mb-2">
+            Number of Articles
+          </label>
+          <Select
+            onValueChange={(value) => setPageSize(Number(value))}
+            value={pageSize.toString()}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Articles" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="5">5</SelectItem>
+              <SelectItem value="10">10</SelectItem>
+              <SelectItem value="15">15</SelectItem>
+              <SelectItem value="20">20</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Fetch News Button */}
@@ -198,6 +219,12 @@ export default function Home() {
           </CardContent>
         </Card>
       )}
+
+      <footer className="border-t mt-8 pt-4 text-center text-sm text-muted-foreground">
+        <p>
+          © {new Date().getFullYear()} AI News Summarizer. All rights reserved.
+        </p>
+      </footer>
     </div>
   );
 }
