@@ -72,7 +72,14 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/analyze/?url=${selectedArticle.url}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/analyze/?url=${selectedArticle.url}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "omit",
+        }
       );
       if (!response.ok) throw new Error("Failed to analyze article.");
       const data = await response.json();
