@@ -6,6 +6,8 @@ This project fetches news articles, summarizes them using NLP models, and analyz
 
 https://news-summarizer-frontend.vercel.app/
 
+<img width="1025" alt="image" src="https://github.com/user-attachments/assets/61e64efa-5643-4b8a-a7be-970b40b242e4" />
+
 ## Features
 
 - ✅ Fetch news via GNewsAPI
