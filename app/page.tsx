@@ -26,6 +26,21 @@ interface AnalysisResult {
   summary: string;
 }
 
+// Add this helper function at the top of your component
+const sanitizeQuery = (input: string): string => {
+  // Expanded regex to include hyphens and question marks
+  const hasSpecialChars = /[-!?@#$%^&*(),.":{}|<>]/.test(input);
+
+  // If special characters are found and the input isn't already quoted
+  if (hasSpecialChars && !input.startsWith('"') && !input.endsWith('"')) {
+    // Handle existing quotes within the text
+    const sanitizedInput = input.replace(/"/g, '\\"');
+    return `"${sanitizedInput}"`;
+  }
+
+  return input;
+};
+
 export default function Home() {
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("relevancy");
@@ -47,8 +62,13 @@ export default function Home() {
     setAnalysisResult(null);
 
     try {
+      const sanitizedQuery = sanitizeQuery(query.trim());
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/fetch_news/?query=${query}&sort_by=${sortBy}&page_size=${pageSize}`,
+        `${
+          process.env.NEXT_PUBLIC_BACKEND_URL
+        }/fetch_news/?query=${encodeURIComponent(
+          sanitizedQuery
+        )}&sort_by=${sortBy}&page_size=${pageSize}`,
         {
           method: "GET",
           headers: {
