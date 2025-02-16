@@ -46,7 +46,14 @@ export default function Home() {
 
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/fetch_news/?query=${query}&sort_by=${sortBy}&page_size=${pageSize}`
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/fetch_news/?query=${query}&sort_by=${sortBy}&page_size=${pageSize}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "omit",
+        }
       );
       if (!response.ok) throw new Error("Failed to fetch news.");
       const data = await response.json();
