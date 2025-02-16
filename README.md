@@ -4,14 +4,12 @@ This project fetches news articles, summarizes them using NLP models, and analyz
 
 ## Demo
 
-- Fast API Hugging Face Space Demo: https://meleong-news-summarizer.hf.space/docs#/
-
-https://github.com/user-attachments/assets/3f4edf13-e7e9-4f4d-a542-d6efe844cfd6
+https://news-summarizer-frontend.vercel.app/
 
 ## Features
 
-- ✅ Fetch news via API
-- ✅ Summarize using Hugging Face `bart-large-cnn`
+- ✅ Fetch news via GNewsAPI
+- ✅ Summarize using Hugging Face `bart-large-cnn` via Inference API
 - ✅ Analyze sentiment with NLTK
 - ✅ Simple UI Next.js, React, and ShadCN components
 
@@ -35,33 +33,10 @@ npm run dev
 
 ### Memory Constraints
 
-- Large NLP models (BART-CNN, NLTK) require significant memory
+- Large NLP models (BART-CNN) requires significant memory
 - Free-tier hosting services (Heroku, Railway) insufficient for model deployment
 - Most providers limit memory to 512MB-1GB
 
-### Attempted Solutions
+### API Constraints
 
-1. **Docker Containerization**
-
-   - Containerized application for consistent deployment
-   - Still exceeded free-tier memory limits
-   - Tested on Docker Hub and Google Cloud Run
-
-2. **Model Optimization**
-   - Attempted model quantization
-   - Explored smaller alternative models
-   - Trade-off between performance and size
-
-### Current Solution
-
-✅ Successfully deployed API on Hugging Face Spaces
-
-- Provides adequate memory for models
-- Free tier supports ML workloads
-- Backend demo at: https://meleong-news-summarizer.hf.space/docs#/
-
-✅ Successfully deployed Frontend on Vercel
-
-- Automatic deployments from main branch
-- Optimized for Next.js applications
-- Frontend demo at: https://news-summarizer-frontend.vercel.app/
+- NewsAPI blocks non-local origin requests for their Free Tier
