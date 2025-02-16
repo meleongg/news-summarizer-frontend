@@ -29,7 +29,7 @@ interface AnalysisResult {
 export default function Home() {
   const [query, setQuery] = useState("");
   const [sortBy, setSortBy] = useState("relevancy");
-  const [pageSize, setPageSize] = useState(10);
+  const [pageSize, setPageSize] = useState(5);
   const [articles, setArticles] = useState<Article[]>([]);
   const [selectedArticle, setSelectedArticle] = useState<Article | null>(null);
   const [loading, setLoading] = useState(false);
@@ -37,9 +37,11 @@ export default function Home() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(
     null
   );
+  const [error, setError] = useState<string | null>(null);
 
   const fetchNews = async () => {
     setLoading(true);
+    setError(null); // Clear previous errors
     setArticles([]);
     setSelectedArticle(null);
     setAnalysisResult(null);
@@ -55,11 +57,19 @@ export default function Home() {
           credentials: "omit",
         }
       );
-      if (!response.ok) throw new Error("Failed to fetch news.");
+      if (!response.ok) {
+        throw new Error(
+          response.status === 429
+            ? "Too many requests. Please try again later."
+            : "Failed to fetch news. Please try again."
+        );
+      }
       const data = await response.json();
       setArticles(data);
     } catch (error) {
-      console.error(error);
+      setError(
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
     } finally {
       setLoading(false);
     }
@@ -69,6 +79,7 @@ export default function Home() {
     if (!selectedArticle) return;
     setAnalyzing(true);
     setAnalysisResult(null);
+    setError(null); // Clear any previous errors
 
     try {
       const response = await fetch(
@@ -81,10 +92,21 @@ export default function Home() {
           credentials: "omit",
         }
       );
-      if (!response.ok) throw new Error("Failed to analyze article.");
+      if (!response.ok) {
+        throw new Error(
+          response.status === 429
+            ? "Too many analysis requests. Please try again later."
+            : response.status === 404
+            ? "Could not access the article content. Please try another article."
+            : "Failed to analyze article. Please try again."
+        );
+      }
       const data = await response.json();
       setAnalysisResult(data);
     } catch (error) {
+      setError(
+        error instanceof Error ? error.message : "Failed to analyze article"
+      );
       console.error(error);
     } finally {
       setAnalyzing(false);
@@ -105,18 +127,24 @@ export default function Home() {
       </h1>
 
       {/* Query Input */}
-      <label className="block text-sm font-medium mb-2">
+      <label className="block text-sm font-medium">
         Enter a topic or keyword to search news articles
+        <span className="text-red-500">*</span>
       </label>
       <Input
         type="text"
         placeholder="Enter a topic or keyword..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        required
+        className={`${!query.trim() && "border-red-500"}`}
       />
+      {!query.trim() && (
+        <p className="text-red-500 text-sm">Please enter a search term</p>
+      )}
 
       {/* Sorting and Page Size Dropdowns */}
-      <div className="flex gap-4">
+      <div className="flex gap-4 mt-2">
         <div className="flex-1">
           <label className="block text-sm font-medium mb-2">
             Sort Results By
@@ -155,9 +183,40 @@ export default function Home() {
       </div>
 
       {/* Fetch News Button */}
-      <Button onClick={fetchNews} disabled={loading}>
-        {loading ? <Loader2 className="animate-spin mr-2" /> : "Search News"}
+      <Button
+        onClick={fetchNews}
+        disabled={loading || !query.trim()}
+        className="w-30"
+      >
+        {loading ? (
+          <div className="flex items-center justify-center">
+            <Loader2 className="animate-spin h-5 w-5" />
+          </div>
+        ) : (
+          "Search News"
+        )}
       </Button>
+
+      {/* Error Alert */}
+      {error && (
+        <Alert variant="destructive">
+          <AlertDescription className="flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-4 w-4"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                clipRule="evenodd"
+              />
+            </svg>
+            {error}
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Articles List */}
       {articles.length > 0 && (
@@ -201,9 +260,11 @@ export default function Home() {
 
       {/* Analyze Button */}
       {selectedArticle && (
-        <Button onClick={analyzeArticle} disabled={analyzing}>
+        <Button onClick={analyzeArticle} disabled={analyzing} className="w-30">
           {analyzing ? (
-            <Loader2 className="animate-spin mr-2" />
+            <div className="flex items-center justify-center">
+              <Loader2 className="animate-spin h-5 w-5" />
+            </div>
           ) : (
             "Analyze Article"
           )}
